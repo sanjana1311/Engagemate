@@ -1,61 +1,58 @@
 import { GoogleGenAI } from "@google/genai";
 import { UserProfile } from "../types";
 
-// Initialize the client. API Key is assumed to be in process.env.API_KEY
+// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
- * Generates a friendly public reply to a user's comment.
+ * Generates a context-aware reply to a public comment.
  */
 export const generateCommentReply = async (
-  postContext: string,
+  postContent: string,
   userComment: string,
   userName: string,
   userProfile: UserProfile,
-  customInstruction?: string
+  customContext?: string
 ): Promise<string> => {
   try {
     const prompt = `
-      You are mimicking a specific human on LinkedIn. Do NOT sound like an AI assistant.
+      You are ${userProfile.name}, a ${userProfile.title}.
       
-      YOUR PERSONA:
-      Name: ${userProfile.name}
-      Job Title: ${userProfile.title}
-      Bio/Background: ${userProfile.bio}
+      YOUR PROFILE:
+      Bio: ${userProfile.bio}
       Writing Style: ${userProfile.writingStyle}
       
-      CONTEXT:
-      Post Content: "${postContext}"
-      User Commenting: "${userName}"
-      Comment Text: "${userComment}"
-      
       TASK:
-      Write a reply to the comment.
+      Write a reply to a comment on your LinkedIn post.
       
-      GUIDELINES:
-      - Adopt the writing style defined above strictly.
-      - If the style is casual, use lowercase or abbreviations if appropriate.
-      - If they asked for a resource, confirm you sent it.
-      - Keep it very short (under 20 words).
-      - Do NOT use robotic phrases like "I'm thrilled to share" or "Thank you for your engagement".
-      - Sound like a busy but friendly human replying on their phone.
-      ${customInstruction ? `- Specific Instruction: ${customInstruction}` : ''}
+      CONTEXT:
+      My Post: "${postContent}"
+      User Comment (${userName}): "${userComment}"
+      
+      INSTRUCTIONS:
+      1. Be helpful, authentic, and concise (under 30 words).
+      2. Strictly follow the "Writing Style" defined above.
+      3. Do NOT sound robotic or like a customer support bot.
+      4. ${customContext ? `Additional Goal: ${customContext}` : ''}
+      
+      Reply text only:
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
-
-    return response.text || "Sent!";
+    return response.text || "Thanks for the comment!";
   } catch (error) {
-    console.error("Error generating comment reply:", error);
-    return "Check your DMs!";
+    console.error("AI Error:", error);
+    return "Thanks for the comment! (AI Error)";
   }
 };
 
 /**
- * Generates the DM message content to accompany the file.
+ * Generates a private DM message to deliver an asset.
+ * Crucial: We ask the AI to include the URL so our UI can detect it,
+ * but the UI will strip it visually to show a Rich Card instead.
  */
 export const generateDMMessage = async (
   userName: string,
@@ -65,28 +62,29 @@ export const generateDMMessage = async (
 ): Promise<string> => {
   try {
     const prompt = `
-      You are ${userProfile.name}. Send a DM to ${userName}.
+      You are ${userProfile.name}.
       
-      Context: They commented on your post asking for "${assetName}".
-      Resource Link: ${assetUrl}
+      TASK:
+      Write a direct message (DM) to ${userName} sending them a file they requested.
       
-      Style: ${userProfile.writingStyle}
+      FILE DETAILS:
+      Name: ${assetName}
+      URL: ${assetUrl}
       
-      Task: Write the DM. 
-      - Keep it personal. 
-      - Don't be too salesy. 
-      - Just say "Here is that thing you asked for" in your own voice.
-      - Include the link.
+      INSTRUCTIONS:
+      1. Keep it super short and friendly (1-2 sentences).
+      2. Mention that here is the ${assetName} they asked for.
+      3. IMPORTANT: You MUST include the exact URL (${assetUrl}) at the very end of the message.
+      4. Style: ${userProfile.writingStyle}
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: "gemini-2.5-flash",
       contents: prompt,
     });
-
-    return response.text || `Hey ${userName}, here is the ${assetName}: ${assetUrl}`;
+    return response.text || `Hey ${userName}, here is the link you asked for: ${assetUrl}`;
   } catch (error) {
-    console.error("Error generating DM:", error);
-    return `Hey ${userName}, here is the ${assetName}: ${assetUrl}`;
+    console.error("AI Error:", error);
+    return `Hey ${userName}, here is the link you asked for: ${assetUrl}`;
   }
 };

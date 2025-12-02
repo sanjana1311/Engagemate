@@ -8,8 +8,8 @@ declare const chrome: any;
 
 // --- MOCK DATA ---
 const MOCK_ASSETS: Asset[] = [
-  { id: '1', name: 'Ultimate Growth Guide', type: 'PDF', url: 'https://example.com/growth-guide.pdf', downloads: 124 },
-  { id: '2', name: 'Q4 Marketing Calendar', type: 'LINK', url: 'https://docs.google.com/spreadsheets/d/xyz', downloads: 89 },
+  { id: '1', name: 'Ultimate Growth Guide 2024', type: 'PDF', url: 'https://alexcreator.com/assets/growth-guide.pdf', downloads: 124 },
+  { id: '2', name: 'Q4 Marketing Calendar', type: 'LINK', url: 'https://docs.google.com/spreadsheets/d/marketing-q4', downloads: 89 },
 ];
 
 const MOCK_RULES: AutomationRule[] = [
@@ -29,7 +29,7 @@ const DEFAULT_PROFILE: UserProfile = {
 const MOCK_POSTS: Post[] = [
   {
     id: '101',
-    content: "🚀 Just dropped the new 2024 Social Media Growth Strategy! If you want to scale your engagement 10x, this is for you. Drop a comment with 'GUIDE' and I'll send it over! 👇 #growthhacking #socialmedia",
+    content: "🚀 Just dropped the new 2024 Social Media Growth Strategy! If you want to scale your engagement 10x, this is for you.\n\nDrop a comment with 'GUIDE' and I'll send it over! 👇\n\n#growthhacking #socialmedia #marketing",
     image: "https://picsum.photos/seed/apple/800/400",
     likes: 452,
     createdAt: '2h ago',
@@ -43,7 +43,7 @@ const MOCK_POSTS: Post[] = [
         status: 'completed',
         reply: "Sent! Check your DMs Sarah 🙌",
         dmSent: true,
-        dmContent: "Hey Sarah, here is the Ultimate Growth Guide you asked for: https://example.com/growth-guide.pdf"
+        dmContent: "Hey Sarah, here is the Ultimate Growth Guide 2024 you asked for! https://alexcreator.com/assets/growth-guide.pdf"
       }
     ]
   },
@@ -334,39 +334,35 @@ export default function App() {
                   rows={3}
                   value={userProfile.bio}
                   onChange={(e) => setUserProfile({...userProfile, bio: e.target.value})}
-                  className="block w-full rounded-2xl border-gray-200 bg-gray-50 shadow-sm focus:border-[#007AFF] focus:ring-[#007AFF] text-sm p-4 resize-none"
+                  className="block w-full rounded-2xl border-gray-200 focus:border-[#007AFF] focus:ring-[#007AFF] text-sm bg-gray-50 p-4"
+                  placeholder="I am a software engineer..."
                 />
+                <p className="mt-1 text-xs text-gray-400">The AI uses this to understand who it is pretending to be.</p>
              </div>
 
              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Writing Style</label>
                 <textarea 
-                  rows={2}
+                  rows={3}
                   value={userProfile.writingStyle}
                   onChange={(e) => setUserProfile({...userProfile, writingStyle: e.target.value})}
-                  className="block w-full rounded-2xl border-gray-200 bg-gray-50 shadow-sm focus:border-[#007AFF] focus:ring-[#007AFF] text-sm p-4 resize-none"
+                  className="block w-full rounded-2xl border-gray-200 focus:border-[#007AFF] focus:ring-[#007AFF] text-sm bg-gray-50 p-4"
+                  placeholder="Casual, professional, uses emojis..."
                 />
+                <p className="mt-1 text-xs text-gray-400">Define how you want your replies to sound.</p>
              </div>
           </div>
-          <div className="bg-gray-50 px-6 py-4 text-right border-t border-gray-100">
-             <button className="text-[#007AFF] font-medium text-sm hover:text-blue-700 transition-colors">
-               Reset to Default
-             </button>
-          </div>
         </div>
-        
-        <div className="flex justify-end">
-           <button className="bg-[#007AFF] text-white px-8 py-3 rounded-full font-semibold shadow-lg shadow-blue-500/30 hover:bg-[#0062cc] transition-all transform hover:-translate-y-0.5">
-             Save Changes
-           </button>
-        </div>
-
       </div>
     </div>
   );
 
   return (
-    <Layout currentView={currentView} userProfile={userProfile} onChangeView={setCurrentView}>
+    <Layout 
+      currentView={currentView} 
+      onChangeView={setCurrentView}
+      userProfile={userProfile}
+    >
       {currentView === AppView.DASHBOARD && renderDashboard()}
       {currentView === AppView.AUTOMATIONS && renderAutomations()}
       {currentView === AppView.ASSETS && renderAssets()}
