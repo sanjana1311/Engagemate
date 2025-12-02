@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "EngageMate AI - LinkedIn Automation",
+  "version": "1.0.0",
+  "description": "Auto-reply to comments and send DM resources using Gemini AI.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.linkedin.com/*"
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "EngageMate Dashboard"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*.linkedin.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+}
