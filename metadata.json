@@ -1,5 +1,5 @@
 {
   "name": "EngageMate AI",
-  "description": "An automated social media engagement tool that uses Gemini AI to generate context-aware replies to comments and automatically dispatches DM resources based on keywords.",
+  "description": "An automated social media engagement tool that uses Groq AI (Llama 3) to generate context-aware replies to comments and automatically dispatches DM resources based on keywords.",
   "requestFramePermissions": []
 }
