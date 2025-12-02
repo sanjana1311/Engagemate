@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { PostCard } from './components/PostCard';
 import { AppView, Post, AutomationRule, Asset, UserProfile } from './types';
-import { PlusIcon, TrashIcon, DocumentIcon, LinkIcon, PhotoIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, DocumentIcon, LinkIcon, PhotoIcon, UserCircleIcon, EllipsisHorizontalIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 declare const chrome: any;
 
@@ -15,13 +15,13 @@ const MOCK_ASSETS: Asset[] = [
 const MOCK_RULES: AutomationRule[] = [
   { id: '1', keyword: 'guide', assetId: '1', isActive: true, customPrompt: 'Mention that this guide helped me get 10k followers.' },
   { id: '2', keyword: 'calendar', assetId: '2', isActive: true },
-  { id: '3', keyword: 'pdf', assetId: '1', isActive: true },
+  { id: '3', keyword: 'pdf', assetId: '1', isActive: false },
 ];
 
 const DEFAULT_PROFILE: UserProfile = {
   name: "Alex Creator",
   title: "Growth Marketer",
-  avatar: "https://picsum.photos/seed/me/200/200",
+  avatar: "https://ui-avatars.com/api/?name=Alex+Creator&background=007AFF&color=fff",
   bio: "I help founders scale their personal brands on LinkedIn.",
   writingStyle: "Casual, energetic, uses emojis sparsely. No corporate jargon."
 };
@@ -30,14 +30,14 @@ const MOCK_POSTS: Post[] = [
   {
     id: '101',
     content: "🚀 Just dropped the new 2024 Social Media Growth Strategy! If you want to scale your engagement 10x, this is for you. Drop a comment with 'GUIDE' and I'll send it over! 👇 #growthhacking #socialmedia",
-    image: "https://picsum.photos/seed/social/800/400",
+    image: "https://picsum.photos/seed/apple/800/400",
     likes: 452,
-    createdAt: '2 hours ago',
+    createdAt: '2h ago',
     comments: [
       {
         id: 'c1',
         userId: 'u1',
-        user: { id: 'u1', name: 'Sarah Jenkins', handle: '@sarahj', avatar: 'https://picsum.photos/seed/sarah/50/50' },
+        user: { id: 'u1', name: 'Sarah Jenkins', handle: '@sarahj', avatar: 'https://ui-avatars.com/api/?name=Sarah+Jenkins&background=random' },
         text: "This looks amazing! I need that GUIDE please 🔥",
         timestamp: '1h ago',
         status: 'completed',
@@ -47,13 +47,6 @@ const MOCK_POSTS: Post[] = [
       }
     ]
   },
-  {
-    id: '102',
-    content: "Consistency is key 🔑. How often do you post per week? Let's chat in the comments.",
-    likes: 120,
-    createdAt: '5 hours ago',
-    comments: []
-  }
 ];
 
 export default function App() {
@@ -66,7 +59,6 @@ export default function App() {
 
   // Initialize and Load from Chrome Storage
   useEffect(() => {
-    // Check if we are running as an extension
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
       setIsExtensionMode(true);
       chrome.storage.local.get(['rules', 'assets', 'userProfile'], (result: any) => {
@@ -77,23 +69,16 @@ export default function App() {
     }
   }, []);
 
-  // Save changes to Chrome Storage
   useEffect(() => {
-    if (isExtensionMode) {
-      chrome.storage.local.set({ rules: rules });
-    }
+    if (isExtensionMode) chrome.storage.local.set({ rules: rules });
   }, [rules, isExtensionMode]);
 
   useEffect(() => {
-    if (isExtensionMode) {
-      chrome.storage.local.set({ assets: assets });
-    }
+    if (isExtensionMode) chrome.storage.local.set({ assets: assets });
   }, [assets, isExtensionMode]);
 
   useEffect(() => {
-    if (isExtensionMode) {
-      chrome.storage.local.set({ userProfile: userProfile });
-    }
+    if (isExtensionMode) chrome.storage.local.set({ userProfile: userProfile });
   }, [userProfile, isExtensionMode]);
 
   // -- Handlers --
@@ -113,271 +98,269 @@ export default function App() {
   const addNewRule = () => {
     const newRule: AutomationRule = {
       id: Date.now().toString(),
-      keyword: 'new keyword',
+      keyword: 'keyword',
       assetId: assets[0]?.id || '',
       isActive: false
     };
     setRules([...rules, newRule]);
   };
 
+  // -- Components --
+  
+  const StatCard = ({ title, value, sub, color }: any) => (
+    <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5 flex flex-col justify-between h-40">
+      <div className="flex justify-between items-start">
+         <h4 className="font-semibold text-gray-500 text-sm uppercase tracking-wide">{title}</h4>
+         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${color}`}>
+            <ArrowPathIcon className="w-4 h-4 text-current opacity-70" />
+         </div>
+      </div>
+      <div>
+        <div className="text-4xl font-bold text-gray-900 tracking-tight">{value}</div>
+        <div className="text-sm text-gray-400 font-medium mt-1">{sub}</div>
+      </div>
+    </div>
+  );
+
   // -- Views --
 
   const renderDashboard = () => (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {!isExtensionMode && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-sm text-yellow-800 mb-4">
-          <strong>Web Preview Mode:</strong> Changes are not saved to the extension. To use on LinkedIn, install this as an unpacked extension.
+        <div className="bg-amber-50 border border-amber-200/50 p-4 rounded-2xl text-sm text-amber-800 flex items-center shadow-sm">
+          <span className="bg-amber-100 p-1 rounded-md mr-3">⚠️</span>
+          <strong>Preview Mode:</strong> &nbsp;Install as unpacked extension to use on LinkedIn.
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
-          <p className="text-indigo-100 text-sm font-medium">Auto-Replies Sent</p>
-          <h3 className="text-3xl font-bold mt-1">1,284</h3>
-          <div className="mt-4 text-xs bg-white/20 inline-block px-2 py-1 rounded">+12% this week</div>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <p className="text-slate-500 text-sm font-medium">Pending Comments</p>
-          <h3 className="text-3xl font-bold mt-1 text-slate-800">0</h3>
-          <p className="text-xs text-green-500 mt-2">All caught up!</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-          <p className="text-slate-500 text-sm font-medium">Resources Delivered</p>
-          <h3 className="text-3xl font-bold mt-1 text-slate-800">845</h3>
-          <p className="text-xs text-slate-400 mt-2">via DM automation</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard title="Replies Sent" value="1,284" sub="+12% this week" color="bg-blue-50 text-[#007AFF]" />
+        <StatCard title="Pending" value="0" sub="All caught up" color="bg-green-50 text-[#34C759]" />
+        <StatCard title="Resources" value="845" sub="Delivered via DM" color="bg-purple-50 text-purple-600" />
       </div>
 
-      <h3 className="text-lg font-semibold text-slate-800 mb-4">Live Post Monitor</h3>
-      <div className="max-w-3xl">
-        {posts.map(post => (
-          <PostCard 
-            key={post.id} 
-            post={post} 
-            rules={rules} 
-            assets={assets}
-            userProfile={userProfile}
-            onUpdatePost={handleUpdatePost} 
-          />
-        ))}
+      <div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">Live Activity</h3>
+        <div className="max-w-4xl">
+          {posts.map(post => (
+            <PostCard 
+              key={post.id} 
+              post={post} 
+              rules={rules} 
+              assets={assets}
+              userProfile={userProfile}
+              onUpdatePost={handleUpdatePost} 
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
 
   const renderAutomations = () => (
-    <div className="max-w-4xl">
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-4xl mx-auto">
+      <div className="flex justify-between items-end mb-8">
         <div>
-           <h3 className="text-xl font-bold text-slate-900">Keyword Triggers</h3>
-           <p className="text-slate-500 text-sm">Define words that trigger an automatic DM and reply.</p>
+           <h3 className="text-3xl font-bold text-gray-900 tracking-tight">Automations</h3>
+           <p className="text-gray-500 mt-2 text-lg font-normal">Manage keyword triggers and responses.</p>
         </div>
-        <button onClick={addNewRule} className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm font-medium">
-          <PlusIcon className="w-4 h-4" />
-          <span>New Rule</span>
+        <button onClick={addNewRule} className="bg-[#007AFF] text-white px-5 py-2.5 rounded-full hover:bg-[#0062cc] transition-colors shadow-lg shadow-blue-500/30 text-[15px] font-semibold flex items-center">
+          <PlusIcon className="w-5 h-5 mr-1" /> Add Rule
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-medium text-xs">
-            <tr>
-              <th className="px-6 py-4">If comment contains...</th>
-              <th className="px-6 py-4">Send this asset</th>
-              <th className="px-6 py-4">Custom Context</th>
-              <th className="px-6 py-4 text-center">Status</th>
-              <th className="px-6 py-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {rules.map((rule) => (
-              <tr key={rule.id} className="hover:bg-slate-50/50">
-                <td className="px-6 py-4">
-                  <span className="font-mono bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs border border-indigo-100">
-                    "{rule.keyword}"
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <select 
-                    value={rule.assetId}
-                    onChange={(e) => {
-                       const updated = rules.map(r => r.id === rule.id ? { ...r, assetId: e.target.value } : r);
-                       setRules(updated);
-                    }}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-1 border"
-                  >
-                    {assets.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
-                </td>
-                 <td className="px-6 py-4">
+      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5 overflow-hidden">
+        {rules.map((rule, index) => (
+          <div key={rule.id} className={`p-6 flex items-center justify-between group transition-colors hover:bg-gray-50 ${index !== rules.length - 1 ? 'border-b border-gray-100' : ''}`}>
+             <div className="flex-1 grid grid-cols-12 gap-6 items-center">
+                
+                {/* Keyword */}
+                <div className="col-span-3">
+                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">If comment has</div>
                    <input 
                       type="text" 
-                      placeholder="Optional AI hint..."
+                      value={rule.keyword}
+                      onChange={(e) => {
+                        const updated = rules.map(r => r.id === rule.id ? { ...r, keyword: e.target.value } : r);
+                        setRules(updated);
+                      }}
+                      className="font-mono text-[15px] bg-gray-100 border-none rounded-lg px-3 py-1.5 w-full text-indigo-600 focus:ring-2 focus:ring-[#007AFF]"
+                   />
+                </div>
+
+                {/* Arrow */}
+                <div className="col-span-1 flex justify-center">
+                  <span className="text-gray-300">→</span>
+                </div>
+
+                {/* Asset */}
+                <div className="col-span-4">
+                   <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Send File</div>
+                   <select 
+                      value={rule.assetId}
+                      onChange={(e) => {
+                         const updated = rules.map(r => r.id === rule.id ? { ...r, assetId: e.target.value } : r);
+                         setRules(updated);
+                      }}
+                      className="block w-full rounded-lg border-gray-200 bg-white text-sm py-2 px-3 focus:border-[#007AFF] focus:ring-[#007AFF]"
+                    >
+                      {assets.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
+                </div>
+
+                {/* Custom Context */}
+                <div className="col-span-4">
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Context</div>
+                  <input 
+                      type="text" 
+                      placeholder="e.g. Be funny..."
                       value={rule.customPrompt || ''}
                       onChange={(e) => {
                         const updated = rules.map(r => r.id === rule.id ? { ...r, customPrompt: e.target.value } : r);
                         setRules(updated);
                       }}
-                      className="w-full text-xs border-b border-slate-200 focus:border-indigo-500 outline-none bg-transparent"
+                      className="w-full text-sm border-b border-gray-200 focus:border-[#007AFF] outline-none bg-transparent py-1 placeholder-gray-300 transition-colors"
                    />
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <button 
-                    onClick={() => toggleRule(rule.id)}
-                    className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${rule.isActive ? 'bg-green-500' : 'bg-slate-200'}`}
-                  >
-                    <span className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${rule.isActive ? 'translate-x-4' : 'translate-x-0'}`} />
-                  </button>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button onClick={() => deleteRule(rule.id)} className="text-slate-400 hover:text-red-500 transition-colors">
-                    <TrashIcon className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+             </div>
+
+             {/* Actions */}
+             <div className="flex items-center space-x-6 ml-6 pl-6 border-l border-gray-100">
+                <button 
+                  onClick={() => toggleRule(rule.id)}
+                  className={`w-12 h-7 rounded-full p-1 transition-colors duration-300 ease-in-out ${rule.isActive ? 'bg-[#34C759]' : 'bg-gray-200'}`}
+                >
+                  <div className={`bg-white w-5 h-5 rounded-full shadow-sm transform transition-transform duration-300 ${rule.isActive ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                </button>
+                <button onClick={() => deleteRule(rule.id)} className="text-gray-300 hover:text-[#FF3B30] transition-colors">
+                  <TrashIcon className="w-5 h-5" />
+                </button>
+             </div>
+          </div>
+        ))}
         {rules.length === 0 && (
-          <div className="p-8 text-center text-slate-500">No rules defined. Create one to start automating!</div>
+          <div className="p-12 text-center text-gray-400">No active automations. Tap "Add Rule" to start.</div>
         )}
       </div>
     </div>
   );
 
   const renderAssets = () => (
-    <div className="max-w-5xl">
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-5xl mx-auto">
+      <div className="flex justify-between items-end mb-8">
         <div>
-           <h3 className="text-xl font-bold text-slate-900">Asset Library</h3>
-           <p className="text-slate-500 text-sm">Manage files and links sent via DM.</p>
+           <h3 className="text-3xl font-bold text-gray-900 tracking-tight">Files</h3>
+           <p className="text-gray-500 mt-2 text-lg font-normal">PDFs and links available for DMing.</p>
         </div>
-        <button className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm text-sm font-medium">
-          <PlusIcon className="w-4 h-4" />
-          <span>Upload Asset</span>
+        <button className="bg-white text-gray-900 border border-gray-200 px-5 py-2.5 rounded-full hover:bg-gray-50 transition-colors shadow-sm text-[15px] font-semibold flex items-center">
+          <PlusIcon className="w-5 h-5 mr-1 text-gray-500" /> Upload
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {assets.map((asset) => (
-          <div key={asset.id} className="bg-white p-5 rounded-xl border border-slate-200 hover:shadow-md transition-shadow cursor-pointer group">
-            <div className="flex justify-between items-start mb-4">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${asset.type === 'PDF' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-blue-500'}`}>
-                {asset.type === 'PDF' ? <DocumentIcon className="w-6 h-6" /> : <LinkIcon className="w-6 h-6" />}
-              </div>
-              <span className="text-xs font-medium bg-slate-100 text-slate-600 px-2 py-1 rounded">{asset.type}</span>
+          <div key={asset.id} className="bg-white p-4 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-black/5 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all cursor-pointer group flex flex-col items-center text-center aspect-square justify-center relative">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 ${asset.type === 'PDF' ? 'bg-[#FF3B30]/10 text-[#FF3B30]' : 'bg-[#007AFF]/10 text-[#007AFF]'}`}>
+              {asset.type === 'PDF' ? <DocumentIcon className="w-8 h-8" /> : <LinkIcon className="w-8 h-8" />}
             </div>
-            <h4 className="font-semibold text-slate-800 mb-1 truncate">{asset.name}</h4>
-            <p className="text-xs text-slate-400 truncate mb-4">{asset.url}</p>
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-               <span className="text-xs text-slate-500 font-medium">{asset.downloads} sent</span>
-               <button className="text-xs text-indigo-600 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Edit</button>
+            <h4 className="font-semibold text-gray-900 text-sm line-clamp-2 px-2">{asset.name}</h4>
+            <p className="text-[11px] text-gray-400 mt-1">{asset.downloads} sent</p>
+            
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+               <EllipsisHorizontalIcon className="w-6 h-6 text-gray-400 hover:text-gray-600" />
             </div>
           </div>
         ))}
-         <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-300 hover:text-indigo-500 transition-colors cursor-pointer min-h-[180px]">
-            <PhotoIcon className="w-8 h-8 mb-2" />
-            <span className="text-sm font-medium">Add New Resource</span>
+         <div className="border-2 border-dashed border-gray-200 rounded-3xl p-4 flex flex-col items-center justify-center text-gray-400 hover:border-[#007AFF]/50 hover:text-[#007AFF] transition-colors cursor-pointer aspect-square bg-gray-50/50">
+            <PlusIcon className="w-10 h-10 mb-2 opacity-50" />
+            <span className="text-sm font-medium">Add</span>
          </div>
       </div>
     </div>
   );
 
   const renderSettings = () => (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8 text-center">
-        <h3 className="text-2xl font-bold text-slate-900">Your Persona</h3>
-        <p className="text-slate-500 mt-2">Teach the AI how to sound like YOU. This information helps generate authentic replies.</p>
+    <div className="max-w-2xl mx-auto pb-12">
+      <div className="text-center mb-10">
+        <h3 className="text-3xl font-bold text-gray-900 tracking-tight">Persona</h3>
+        <p className="text-gray-500 mt-2 text-lg">Customize how the AI mimics you.</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-8 space-y-6">
+      <div className="space-y-8">
+        
+        {/* Profile Card */}
+        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5 overflow-hidden">
+           <div className="p-8 flex items-center space-x-6">
+              <div className="relative group cursor-pointer">
+                 <img src={userProfile.avatar} alt="Profile" className="w-24 h-24 rounded-full object-cover shadow-sm group-hover:opacity-80 transition-opacity" />
+                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-md">Edit</span>
+                 </div>
+              </div>
+              <div className="flex-1 space-y-4">
+                 <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Name</label>
+                    <input 
+                      type="text" 
+                      value={userProfile.name}
+                      onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                      className="block w-full border-b border-gray-200 focus:border-[#007AFF] outline-none py-1 text-lg font-medium bg-transparent"
+                    />
+                 </div>
+                 <div>
+                    <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Title</label>
+                    <input 
+                      type="text" 
+                      value={userProfile.title}
+                      onChange={(e) => setUserProfile({...userProfile, title: e.target.value})}
+                      className="block w-full border-b border-gray-200 focus:border-[#007AFF] outline-none py-1 text-base text-gray-600 bg-transparent"
+                    />
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        {/* AI Configuration */}
+        <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-black/5 overflow-hidden">
+          <div className="px-6 py-4 bg-gray-50/50 border-b border-gray-100 flex items-center justify-between">
+             <h4 className="font-semibold text-gray-900">Tone & Voice</h4>
+             <span className="text-[10px] bg-[#007AFF] text-white px-2 py-0.5 rounded-full font-bold">AI MODEL</span>
+          </div>
           
-          {/* Avatar & Name */}
-          <div className="flex items-start space-x-6">
-            <div className="shrink-0">
-               <div className="w-24 h-24 rounded-full bg-slate-100 border-4 border-white shadow-sm overflow-hidden relative group">
-                 {userProfile.avatar ? (
-                   <img src={userProfile.avatar} alt="Profile" className="w-full h-full object-cover" />
-                 ) : (
-                   <UserCircleIcon className="w-full h-full text-slate-300" />
-                 )}
-               </div>
-            </div>
-            <div className="flex-1 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700">Display Name</label>
-                <input 
-                  type="text" 
-                  value={userProfile.name}
-                  onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                  placeholder="e.g. Alex Hormozi"
+          <div className="p-6 space-y-6">
+             <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Context / Bio</label>
+                <textarea 
+                  rows={3}
+                  value={userProfile.bio}
+                  onChange={(e) => setUserProfile({...userProfile, bio: e.target.value})}
+                  className="block w-full rounded-2xl border-gray-200 bg-gray-50 shadow-sm focus:border-[#007AFF] focus:ring-[#007AFF] text-sm p-4 resize-none"
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700">Headline / Job Title</label>
-                <input 
-                  type="text" 
-                  value={userProfile.title}
-                  onChange={(e) => setUserProfile({...userProfile, title: e.target.value})}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                  placeholder="e.g. Founder @ Growth.io"
+             </div>
+
+             <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Writing Style</label>
+                <textarea 
+                  rows={2}
+                  value={userProfile.writingStyle}
+                  onChange={(e) => setUserProfile({...userProfile, writingStyle: e.target.value})}
+                  className="block w-full rounded-2xl border-gray-200 bg-gray-50 shadow-sm focus:border-[#007AFF] focus:ring-[#007AFF] text-sm p-4 resize-none"
                 />
-              </div>
-            </div>
-          </div>
-
-          <div>
-             <label className="block text-sm font-medium text-slate-700">Avatar Image URL</label>
-             <input 
-                type="text" 
-                value={userProfile.avatar}
-                onChange={(e) => setUserProfile({...userProfile, avatar: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                placeholder="https://..."
-              />
-              <p className="mt-1 text-xs text-slate-400">Paste a link to your LinkedIn profile photo.</p>
-          </div>
-
-          <div className="border-t border-slate-100 pt-6">
-             <h4 className="font-semibold text-slate-800 mb-4 flex items-center">
-               <span className="bg-indigo-100 text-indigo-700 w-6 h-6 rounded-full flex items-center justify-center text-xs mr-2">AI</span>
-               Tone & Voice Configuration
-             </h4>
-
-             <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Bio / Background Context</label>
-                  <textarea 
-                    rows={3}
-                    value={userProfile.bio}
-                    onChange={(e) => setUserProfile({...userProfile, bio: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                    placeholder="Briefly describe what you do. The AI uses this to understand your expertise."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-700">Writing Style</label>
-                  <textarea 
-                    rows={2}
-                    value={userProfile.writingStyle}
-                    onChange={(e) => setUserProfile({...userProfile, writingStyle: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
-                    placeholder="e.g. 'Short, punchy, lowercase. No corporate fluff. Use fire emojis.'"
-                  />
-                  <p className="mt-2 text-xs text-slate-500 bg-slate-50 p-3 rounded">
-                    <strong>Tip:</strong> If you want it to sound like you, be specific! E.g. <em>"I never use exclamation marks"</em> or <em>"I always start with 'Hey [Name]'"</em>.
-                  </p>
-                </div>
              </div>
           </div>
+          <div className="bg-gray-50 px-6 py-4 text-right border-t border-gray-100">
+             <button className="text-[#007AFF] font-medium text-sm hover:text-blue-700 transition-colors">
+               Reset to Default
+             </button>
+          </div>
         </div>
-        <div className="bg-slate-50 px-8 py-4 text-right">
-           <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+        
+        <div className="flex justify-end">
+           <button className="bg-[#007AFF] text-white px-8 py-3 rounded-full font-semibold shadow-lg shadow-blue-500/30 hover:bg-[#0062cc] transition-all transform hover:-translate-y-0.5">
              Save Changes
            </button>
         </div>
+
       </div>
     </div>
   );

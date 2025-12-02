@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Post, Comment, AutomationRule, Asset, UserProfile } from '../types';
 import { generateCommentReply, generateDMMessage } from '../services/gemini';
-import { ArrowPathIcon, ChatBubbleLeftIcon, PaperAirplaneIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { ArrowUpCircleIcon, ChatBubbleOvalLeftIcon, HeartIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 
 interface PostCardProps {
@@ -74,10 +74,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post, rules, assets, userPro
         id: 'guest',
         name: 'Guest User',
         handle: '@guest_user',
-        avatar: 'https://picsum.photos/seed/guest/50/50'
+        avatar: 'https://ui-avatars.com/api/?name=Guest+User&background=random'
       },
       text: newCommentText,
-      timestamp: 'Just now',
+      timestamp: 'Now',
       status: 'pending'
     };
 
@@ -95,113 +95,113 @@ export const PostCard: React.FC<PostCardProps> = ({ post, rules, assets, userPro
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+    <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden mb-8 border border-black/5 transition-transform hover:scale-[1.002] duration-300">
       {/* Post Header */}
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+      <div className="p-5 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <img src={userProfile.avatar} alt="My Avatar" className="w-10 h-10 rounded-full object-cover" />
+          <img src={userProfile.avatar} alt="My Avatar" className="w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-sm" />
           <div>
-            <h3 className="font-semibold text-slate-800">{userProfile.name}</h3>
-            <p className="text-xs text-slate-500">{userProfile.title} • {post.createdAt}</p>
+            <h3 className="font-semibold text-gray-900 text-[15px]">{userProfile.name}</h3>
+            <p className="text-xs text-gray-500 font-medium">{userProfile.title} • {post.createdAt}</p>
           </div>
         </div>
-        <div className="text-xs font-medium px-2 py-1 bg-green-100 text-green-700 rounded-full flex items-center">
-          <div className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></div>
-          Monitoring
+        <div className="text-[11px] font-semibold px-3 py-1 bg-[#34C759]/10 text-[#34C759] rounded-full flex items-center border border-[#34C759]/20">
+          <div className="w-1.5 h-1.5 bg-[#34C759] rounded-full mr-1.5 animate-pulse"></div>
+          Active
         </div>
       </div>
 
       {/* Post Content */}
-      <div className="p-4">
-        <p className="text-slate-700 text-sm mb-3 leading-relaxed">{post.content}</p>
+      <div className="px-5 pb-4">
+        <p className="text-gray-800 text-[15px] mb-4 leading-7 font-normal">{post.content}</p>
         {post.image && (
-          <div className="rounded-lg overflow-hidden h-64 w-full bg-slate-100">
+          <div className="rounded-2xl overflow-hidden h-72 w-full bg-gray-50 border border-black/5 shadow-inner">
              <img src={post.image} alt="Post media" className="w-full h-full object-cover" />
           </div>
         )}
-        <div className="flex items-center space-x-6 mt-4 text-slate-500">
-          <div className="flex items-center space-x-1 cursor-pointer hover:text-red-500 transition-colors">
-            <HeartIcon className="w-5 h-5" />
-            <span className="text-xs font-medium">{post.likes}</span>
-          </div>
-          <div className="flex items-center space-x-1 cursor-pointer hover:text-indigo-500 transition-colors">
-            <ChatBubbleLeftIcon className="w-5 h-5" />
-            <span className="text-xs font-medium">{post.comments.length}</span>
-          </div>
-          <div className="flex items-center space-x-1 cursor-pointer hover:text-slate-800 transition-colors">
-            <PaperAirplaneIcon className="w-5 h-5 -rotate-45" />
+        
+        {/* Social Actions */}
+        <div className="flex items-center justify-between mt-5 pt-4 border-t border-gray-100 px-2">
+          <div className="flex items-center space-x-8">
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-[#FF2D55] transition-colors group">
+              <HeartIcon className="w-6 h-6 stroke-2 group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-medium">{post.likes}</span>
+            </button>
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-[#007AFF] transition-colors group">
+              <ChatBubbleOvalLeftIcon className="w-6 h-6 stroke-2 group-hover:scale-110 transition-transform" />
+              <span className="text-sm font-medium">{post.comments.length}</span>
+            </button>
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-gray-800 transition-colors">
+              <ShareIcon className="w-6 h-6 stroke-2" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Simulation Area */}
-      <div className="bg-slate-50 p-4 border-t border-slate-100">
-        <div className="flex space-x-2">
+      {/* Comments Section - iMessage Style */}
+      <div className="bg-[#F9F9FB] p-5 space-y-6">
+        
+        {/* Input Simulation */}
+        <div className="flex items-center space-x-3 mb-6 bg-white p-2 rounded-[24px] shadow-sm border border-black/5">
+          <div className="w-8 h-8 bg-gray-200 rounded-full flex-shrink-0 ml-1"></div>
           <input 
             type="text" 
             value={newCommentText}
             onChange={(e) => setNewCommentText(e.target.value)}
-            placeholder="Simulate a user comment (e.g. 'Send me the PDF')..."
-            className="flex-1 text-sm px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+            placeholder="Test automation (type 'guide')..."
+            className="flex-1 text-[15px] bg-transparent border-none focus:ring-0 placeholder-gray-400 text-gray-900"
             onKeyDown={(e) => e.key === 'Enter' && handleSimulateUserComment()}
           />
           <button 
             onClick={handleSimulateUserComment}
             disabled={isSimulating}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            className="w-8 h-8 rounded-full bg-[#007AFF] flex items-center justify-center text-white hover:bg-[#0062cc] transition-colors disabled:opacity-50"
           >
-            {isSimulating ? <ArrowPathIcon className="w-4 h-4 animate-spin" /> : 'Post'}
+            <ArrowUpCircleIcon className="w-6 h-6" />
           </button>
         </div>
-      </div>
 
-      {/* Comments Feed */}
-      <div className="bg-slate-50/50 p-4 space-y-6 max-h-96 overflow-y-auto">
-        {post.comments.map((comment) => (
-          <div key={comment.id} className="flex flex-col space-y-2">
-            
-            {/* The User Comment */}
-            <div className="flex space-x-3">
-              <img src={comment.user.avatar} alt={comment.user.name} className="w-8 h-8 rounded-full" />
-              <div className="flex-1">
-                <div className="bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-slate-100 inline-block">
-                  <div className="flex justify-between items-start mb-1 gap-2">
-                    <span className="font-semibold text-xs text-slate-900">{comment.user.name}</span>
-                    <span className="text-[10px] text-slate-400">{comment.timestamp}</span>
-                  </div>
-                  <p className="text-xs text-slate-700">{comment.text}</p>
+        <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+          {post.comments.map((comment) => (
+            <div key={comment.id} className="flex flex-col space-y-3">
+              
+              {/* Incoming Message (User) */}
+              <div className="flex items-end space-x-2">
+                <img src={comment.user.avatar} alt={comment.user.name} className="w-8 h-8 rounded-full mb-1" />
+                <div className="max-w-[85%]">
+                   <div className="bg-[#E9E9EB] text-black px-4 py-2 rounded-2xl rounded-bl-sm inline-block shadow-sm">
+                     <p className="text-[15px] leading-snug">{comment.text}</p>
+                   </div>
+                   <span className="text-[10px] text-gray-400 ml-1 mt-1 block font-medium">{comment.user.name} • {comment.timestamp}</span>
                 </div>
               </div>
+
+              {/* Processing Indicator */}
+              {comment.status === 'processing' && (
+                <div className="flex justify-end items-end space-x-2">
+                   <div className="bg-[#007AFF] px-4 py-3 rounded-2xl rounded-br-sm inline-flex items-center space-x-1 shadow-sm opacity-50">
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-100"></div>
+                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-200"></div>
+                   </div>
+                </div>
+              )}
+
+              {/* Outgoing Message (Me/AI) */}
+              {comment.status === 'completed' && comment.reply && (
+                <div className="flex justify-end items-end space-x-2">
+                   <div className="max-w-[85%] flex flex-col items-end">
+                     <div className="bg-[#007AFF] text-white px-4 py-2 rounded-2xl rounded-br-sm inline-block shadow-sm">
+                       <p className="text-[15px] leading-snug">{comment.reply}</p>
+                     </div>
+                     <span className="text-[10px] text-gray-400 mr-1 mt-1 block font-medium">You • Just now</span>
+                   </div>
+                   <img src={userProfile.avatar} alt="Me" className="w-8 h-8 rounded-full mb-1 border border-white shadow-sm" />
+                </div>
+              )}
             </div>
-
-            {/* Processing State */}
-            {comment.status === 'processing' && (
-              <div className="ml-11 flex items-center space-x-1 text-xs text-slate-400 font-medium">
-                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
-                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-100"></div>
-                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-200"></div>
-              </div>
-            )}
-
-            {/* My Reply (The Automated One, but styled natively) */}
-            {comment.status === 'completed' && comment.reply && (
-              <div className="flex space-x-3 pl-8"> {/* Indent reply */}
-                <div className="shrink-0">
-                  <img src={userProfile.avatar} alt="Me" className="w-8 h-8 rounded-full object-cover border border-slate-100" />
-                </div>
-                <div className="flex-1">
-                  <div className="bg-slate-100 p-3 rounded-2xl rounded-tl-none inline-block">
-                    <div className="flex justify-between items-center mb-1 gap-2">
-                       <span className="text-xs font-bold text-slate-900">{userProfile.name}</span>
-                       <span className="text-[10px] text-slate-400">Just now</span>
-                    </div>
-                    <p className="text-xs text-slate-800 leading-relaxed">{comment.reply}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
